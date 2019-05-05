@@ -42,8 +42,9 @@ export function setProxyToNone (force = true) {
     } else if (isMac && pathExistsSync(macToolPath) && !isOldMacVersion) {
       command = `"${macToolPath}" -m off`
     } else if (isLinux && isGsettingsAvaliable) {
-      command = `gsettings set org.gnome.system.proxy mode 'none'`
+      command = `kwriteconfig5 --file kioslaverc --group 'Proxy Settings' --key ProxyType "0"`
     }
+    logger.info(`setProxyToNone:${command}`)
     runCommand(command)
   }
 }
@@ -52,14 +53,16 @@ export function setProxyToNone (force = true) {
  * 设置代理为全局
  */
 export function setProxyToGlobal (host, port) {
+  logger.info(`set proxy to global!`)
   let command
   if (isWin && pathExistsSync(winToolPath)) {
     command = `${winToolPath} global ${host}:${port}`
   } else if (isMac && pathExistsSync(macToolPath) && !isOldMacVersion) {
     command = `"${macToolPath}" -m global -p ${port}`
   } else if (isLinux && isGsettingsAvaliable) {
-    command = `gsettings set org.gnome.system.proxy mode 'manual' && gsettings set org.gnome.system.proxy.socks host '${host}' && gsettings set org.gnome.system.proxy.socks port ${port}`
+    command = `kwriteconfig5 --file kioslaverc --group 'Proxy Settings' --key ProxyType "1" && kwriteconfig5 --file kioslaverc --group 'Proxy Settings' --key socksProxy "${host}:${port}"`
   }
+  logger.info(`setProxyToGlobal:${command}`)
   runCommand(command)
 }
 
@@ -73,8 +76,9 @@ export function setProxyToPac (pacUrl) {
   } else if (isMac && pathExistsSync(macToolPath) && !isOldMacVersion) {
     command = `"${macToolPath}" -m auto -u ${pacUrl}`
   } else if (isLinux && isGsettingsAvaliable) {
-    command = `gsettings set org.gnome.system.proxy mode 'auto' && gsettings set org.gnome.system.proxy autoconfig-url ${pacUrl}`
+    command = `kwriteconfig5 --file kioslaverc --group 'Proxy Settings' --key ProxyType "2" && kwriteconfig5 --file kioslaverc --group 'Proxy Settings' --key 'Proxy Config Script' "${pacUrl}"`
   }
+  logger.info(`setProxyToPac:${command}`)
   runCommand(command)
 }
 
